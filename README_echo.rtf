@@ -1,37 +1,28 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
-{\fonttbl\f0\fswiss\fcharset0 CenturyGothic;\f1\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-\margl1440\margr1440\vieww12780\viewh18640\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+Hierarchy:
 
-\f0\fs46 \cf0 Hierarchy:\
-\
-->  echo.v\
-        -> ring_buffer.v\
-            ->  echo_begin_counter.v\
-            ->  ring_buffer_address_counter.v (for writing)\
-            ->  ring_buffer_address_counter.v (for reading)\
-            ->  ram_1w2r.v\
-\
-\
-\
-\
-Description:\
-\
+->  echo.v
+        -> ring_buffer.v
+            ->  echo_begin_counter.v
+            ->  ring_buffer_address_counter.v (for writing)
+            ->  ring_buffer_address_counter.v (for reading)
+            ->  ram_1w2r.v
 
-\f1\fs24 \
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 
-\f0\fs46 \cf0 The top level echo.v module only contains a MUX to select between a signal with the effect, and a bypass.  Everything else happens inside of sub-modules.\
-\
-The next highest module, at the heart of the design, is a \'93ring buffer\'94.  Basically, we save a certain number of samples from the past.  Then, once our delay time has elapsed, we start mixing the saved samples with our new, incoming samples.\
-\
-It is implemented with a RAM.  Specifically, I have used the module ram_1w2r.  This RAM is instantiated inside of the ring_buffer.v module, and both the read address, and the write address are indexed by counters.\
-\
-These counters start at 0, and increment up to the highest address in the RAM, then they reset back to 0.  They are implemented separately in a ring_buffer_address_counter.v module.  (Note that the addresses have a short version for test benching, and a long version for synthesis).\
-\
-Also instantiated within the ring_buffer.v module, there is a third counter called echo_begin_counter.v.  This counter starts at the number of samples required for our delay, and decrements down to zero.  It only does this once, and is used to signal the moment when our buffer is full.  Then we begin reading from the RAM.\
-\
-Before the echo_begin_counter has signaled that it is done, we are simply writing our sample_in signal into the RAM, and passing it through to sample_out.  After the echo_begin_counter has signaled high, we begin reading from the first address in RAM while simultaneously writing sample_in to a higher address.  Then, we sum the past sample and our current sample together as our output.\
-\
-With each new_sample_ready signal, we write to the address in the write_address_counter, and we read from the address in the read_address_counter.  These counters are also increased every time we see the new_sample_ready signal.}
+
+
+Description:
+
+
+The top level echo.v module only contains a MUX to select between a signal with the effect, and a bypass.  Everything else happens inside of sub-modules.
+
+The next highest module, at the heart of the design, is a “ring buffer”.  Basically, we save a certain number of samples from the past.  Then, once our delay time has elapsed, we start mixing the saved samples with our new, incoming samples.
+
+It is implemented with a RAM.  Specifically, I have used the module ram_1w2r.  This RAM is instantiated inside of the ring_buffer.v module, and both the read address, and the write address are indexed by counters.
+
+These counters start at 0, and increment up to the highest address in the RAM, then they reset back to 0.  They are implemented separately in a ring_buffer_address_counter.v module.  (Note that the addresses have a short version for test benching, and a long version for synthesis).
+
+Also instantiated within the ring_buffer.v module, there is a third counter called echo_begin_counter.v.  This counter starts at the number of samples required for our delay, and decrements down to zero.  It only does this once, and is used to signal the moment when our buffer is full.  Then we begin reading from the RAM.
+
+Before the echo_begin_counter has signaled that it is done, we are simply writing our sample_in signal into the RAM, and passing it through to sample_out.  After the echo_begin_counter has signaled high, we begin reading from the first address in RAM while simultaneously writing sample_in to a higher address.  Then, we sum the past sample and our current sample together as our output.
+
+With each new_sample_ready signal, we write to the address in the write_address_counter, and we read from the address in the read_address_counter.  These counters are also increased every time we see the new_sample_ready signal.
